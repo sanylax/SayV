@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "855240178743",
+    "firebase_url": "https://assaultprevention-92ad4.firebaseio.com",
+    "project_id": "assaultprevention-92ad4",
+    "storage_bucket": "assaultprevention-92ad4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855240178743:android:94843e0cc42bb4fd",
+        "android_client_info": {
+          "package_name": "com.neelraja.assaultprevention"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "855240178743-lknsmm92brlq7sgu4ucdnd6h81vt4bmn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.neelraja.assaultprevention",
+            "certificate_hash": "1ec49d744df2a29059bae510a9067f030181747b"
+          }
+        },
+        {
+          "client_id": "855240178743-rvr9s31nqp8oi2pu9ae2ktcn8gtqsl1l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVAuBQGv_7eqEIQXTaNboWZsuVN0ezcwg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855240178743-rvr9s31nqp8oi2pu9ae2ktcn8gtqsl1l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
