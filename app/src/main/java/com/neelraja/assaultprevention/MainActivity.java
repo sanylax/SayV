@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     protected double latitude, longitude;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 11;
     private FirebaseDatabase database;
-    private String android_id = Secure.getString(MainActivity.this.getContentResolver(), Secure.ANDROID_ID);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+//        private String android_id = android.telephony.TelephonyManager.getDeviceId();
+        String android_id = Secure.getString(MainActivity.this.getContentResolver(), Secure.ANDROID_ID);
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -188,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError){
+            public void onCancelled(DatabaseError error){
 
             }
         });
