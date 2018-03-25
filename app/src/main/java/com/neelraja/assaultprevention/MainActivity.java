@@ -30,6 +30,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        //
+
 
         //Get location
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -69,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                             // Logic to handle location object
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
-                            closeUsers(latitude, longitude, 0);
+                            contactCloseUsers(latitude, longitude, 0);
                         }
                     }
                 });
@@ -143,9 +147,11 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public String[] closeUsers(final double latitude, final double longitude, double radius){
-        DatabaseReference users =  database.getReference().child("users");
+    public void contactCloseUsers(final double latitude, final double longitude, double radius){
 
+        DatabaseReference users =  database.getReference().child("users");
+        final ArrayList close_users = new ArrayList<String>();
+        final double r = radius;
 
         users.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -155,15 +161,26 @@ public class MainActivity extends AppCompatActivity {
                 for(DataSnapshot snapshot: dataSnapshot.getChildren() ){
                     double otherLat = snapshot.child("lat").getValue(Double.class);
                     double otherLong = snapshot.child("long").getValue(Double.class);
+
+
                     System.out.println("Distance: " + distance(latitude, longitude, otherLat, otherLong));
                     System.out.println("Lat/Long: " + latitude + " " + longitude);
                     System.out.println("Other Lat/Long: " + otherLat + " " + otherLong);
 
-
+                    double dist = distance(latitude, longitude, otherLat, otherLong);
                     Toast.makeText(getApplicationContext(), ""+distance(latitude, longitude, otherLat, otherLong), Toast.LENGTH_SHORT).show();
+
+                    if(dist <= r){
+                        //close_users.add(snapshot.getKey());
+                        //database.getReference()
+                        DatabaseReference ref = snapshot.child("contact").getRef();
+                        ref.setValue(true);
+                    }
                 }
 
                 //Toast.makeText(getApplicationContext(), value, Toast.LENGTH_SHORT).show();
+
+
             }
 
             @Override
@@ -171,8 +188,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        return null;
 
     }
 
