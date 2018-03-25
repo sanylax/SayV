@@ -144,8 +144,8 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public String[] closeUsers(double latitude, double longitude, double distance){
-        DatabaseReference users =  database.getReference("users");
+    public String[] closeUsers(double latitude, double longitude, double radius){
+        DatabaseReference users =  database.getReference().child("users");
 
 
         users.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -153,8 +153,15 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
+                for(DataSnapshot snapshot: dataSnapshot.getChildren() ){
+                    double otherLat = snapshot.child("lat").getValue(Double.class);
+                    double otherLong = snapshot.child("long").getValue(Double.class);
+
+                    Toast.makeText(getApplicationContext(), ""+ otherLat, Toast.LENGTH_SHORT).show();
+                }
+
                 String value = dataSnapshot.getValue(String.class);
-                Toast.makeText(getApplicationContext(), value, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), value, Toast.LENGTH_SHORT).show();
             }
 
             @Override
