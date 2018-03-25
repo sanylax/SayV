@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +21,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
+
+import android.provider.Settings.Secure;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -38,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     protected double latitude, longitude;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 11;
     private FirebaseDatabase database;
+    private String android_id = Secure.getString(MainActivity.this.getContentResolver(), Secure.ANDROID_ID);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +79,8 @@ public class MainActivity extends AppCompatActivity {
                 });
         //Write location to firebase
         database = FirebaseDatabase.getInstance();
-        final DatabaseReference latRef = database.getReference("lat");
-        final DatabaseReference longRef = database.getReference("long");
+        final DatabaseReference latRef = database.getReference("users/"+android_id+"/lat");
+        final DatabaseReference longRef = database.getReference("users/"+android_id+"/long");
 
         final Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
