@@ -3,6 +3,7 @@ package com.neelraja.assaultprevention;
 import android.*;
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     protected double latitude, longitude;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 11;
     private FirebaseDatabase database;
+    String android_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 //        private String android_id = android.telephony.TelephonyManager.getDeviceId();
-        String android_id = Secure.getString(MainActivity.this.getContentResolver(), Secure.ANDROID_ID);
+        android_id = Secure.getString(MainActivity.this.getContentResolver(), Secure.ANDROID_ID);
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -66,37 +68,84 @@ public class MainActivity extends AppCompatActivity {
         //
 
 
-        //Get location
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        if(ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
-        }
-        mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            // Logic to handle location object
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                            contactCloseUsers(latitude, longitude, 0);
-                        }
-                    }
-                });
-        //Write location to firebase
         database = FirebaseDatabase.getInstance();
+        //make location client
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         final DatabaseReference latRef = database.getReference("users/"+android_id+"/lat");
         final DatabaseReference longRef = database.getReference("users/"+android_id+"/long");
+
+        //panic button event handler
+        final Button panicButton = findViewById(R.id.button2);
+        panicButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("PANIC BUTTON CLICKED");
+                if(ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+                }
+
+                mFusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(MainActivity.this, new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                // Got last known location. In some rare situations this can be null.
+                                if (location != null) {
+                                    // Logic to handle location object
+                                    latitude = location.getLatitude();
+                                    longitude = location.getLongitude();
+                                    latRef.setValue(latitude);
+                                    longRef.setValue(longitude);
+
+                                    contactCloseUsers(latitude, longitude, 100);
+                                }
+                            }
+                        });
+            }
+        });
+
+        //Get location anyways
+
+
+
+        //Write location to firebase
+
+//        final DatabaseReference latRef = database.getReference("users/"+android_id+"/lat");
+//        final DatabaseReference longRef = database.getReference("users/"+android_id+"/long");
 
         final Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Code here executes on main thread after user presses button
-                latRef.setValue(latitude);
-                longRef.setValue(longitude);
+//                latRef.setValue(latitude);
+//                longRef.setValue(longitude);
+                System.out.println("LOCATION CLICKED");
+                Intent intent = new Intent(MainActivity.this, MyService.class);
+                startService(intent);
+
+                Intent notificationIntent = new Intent(MainActivity.this, NotificationService.class);
+                startService(notificationIntent);
+//                if(ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+//                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
+//                }
+//                mFusedLocationClient.getLastLocation()
+//                        .addOnSuccessListener(MainActivity.this, new OnSuccessListener<Location>() {
+//                            @Override
+//                            public void onSuccess(Location location) {
+//                                // Got last known location. In some rare situations this can be null.
+//                                if (location != null) {
+//                                    // Logic to handle location object
+//                                    latitude = location.getLatitude();
+//                                    longitude = location.getLongitude();
+//                                    //contactCloseUsers(latitude, longitude, 0);
+//                                    latRef.setValue(latitude);
+//                                    longRef.setValue(longitude);
+//                                }
+//                            }
+//                        });
             }
+
         });
+
 
 //        latRef.addValueEventListener(new ValueEventListener() {
 //            @Override
@@ -157,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
     public void contactCloseUsers(final double latitude, final double longitude, double radius){
 
         DatabaseReference users =  database.getReference().child("users");
-        final ArrayList close_users = new ArrayList<String>();
+//        final ArrayList close_users = new ArrayList<String>();
         final double r = radius;
 
         users.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -177,11 +226,10 @@ public class MainActivity extends AppCompatActivity {
                     double dist = distance(latitude, longitude, otherLat, otherLong);
                     Toast.makeText(getApplicationContext(), ""+distance(latitude, longitude, otherLat, otherLong), Toast.LENGTH_SHORT).show();
 
-                    if(dist <= r){
-                        //close_users.add(snapshot.getKey());
-                        //database.getReference()
+                    if(dist <= r  && snapshot.getKey() != android_id ){
+
                         DatabaseReference ref = snapshot.child("contact").getRef();
-                        ref.setValue(true);
+                        ref.setValue(android_id);
                     }
                 }
 
