@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient mFusedLocationClient;
     protected double latitude, longitude;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 11;
+    private FirebaseDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         //Write location to firebase
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        database = FirebaseDatabase.getInstance();
         final DatabaseReference latRef = database.getReference("lat");
         final DatabaseReference longRef = database.getReference("long");
 
@@ -140,5 +141,44 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public String [] closeUsers(double latitude, double longitude, double distance){
+        DatabaseReference users =  database.getReference("users");
+
+
+        users.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                String value = dataSnapshot.getValue(String.class);
+                Toast.makeText(getApplicationContext(), value, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError){
+
+            }
+        }
+
+
+
+    }
+
+    public double distance(double lat1, double lat2, double lon1, double lon2){
+        double r = 6371 * 1000; // metres
+        double w1 = Math.toRadians(lat1);
+        double w2 =  Math.toRadians(lat2);
+        double deltaW = Math.toRadians(lat2-lat1);
+        double deltaL = Math.toRadians(lon2-lon1);
+
+        double a = Math.sin(deltaW/2) * Math.sin(deltaW/2) +
+                Math.cos(deltaW) * Math.cos(deltaW) *
+                        Math.sin(deltaL/2) * Math.sin(deltaL/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+        double d = r * c;
+
+        return d;
     }
 }
