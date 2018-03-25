@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private FusedLocationProviderClient mFusedLocationClient;
-    protected String latitude, longitude;
+    protected double latitude, longitude;
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 11;
 
     @Override
@@ -66,28 +66,49 @@ public class MainActivity extends AppCompatActivity {
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             // Logic to handle location object
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
                         }
                     }
                 });
         //Write location to firebase
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        final DatabaseReference myRef = database.getReference("message");
+        final DatabaseReference latRef = database.getReference("lat");
+        final DatabaseReference longRef = database.getReference("long");
 
         final Button button = findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Code here executes on main thread after user presses button
-                myRef.setValue("Hello, World!");
+                latRef.setValue(latitude);
+                longRef.setValue(longitude);
             }
         });
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        latRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 String value = dataSnapshot.getValue(String.class);
-                Toast.makeText(getApplicationContext(), value, Toast.LENGTH_SHORT).show();
+                // Toast.makeText(getApplicationContext(), "Latitude: " + value, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.w(TAG, "Failed to read value.", error.toException());
+                Toast.makeText(getApplicationContext(), "Failed to read value.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        longRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                String value = dataSnapshot.getValue(String.class);
+                //Toast.makeText(getApplicationContext(), "Longitude: " + value, Toast.LENGTH_SHORT).show();
             }
 
             @Override
