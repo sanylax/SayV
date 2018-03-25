@@ -86,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        closeUsers(latitude, longitude, 0);
+
 //        latRef.addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(DataSnapshot dataSnapshot) {
