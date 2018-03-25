@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
                             // Logic to handle location object
                             latitude = location.getLatitude();
                             longitude = location.getLongitude();
+                            closeUsers(latitude, longitude, 0);
                         }
                     }
                 });
@@ -85,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
                 longRef.setValue(longitude);
             }
         });
-
-        closeUsers(latitude, longitude, 0);
 
 //        latRef.addValueEventListener(new ValueEventListener() {
 //            @Override
@@ -144,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public String[] closeUsers(double latitude, double longitude, double radius){
+    public String[] closeUsers(final double latitude, final double longitude, double radius){
         DatabaseReference users =  database.getReference().child("users");
 
 
@@ -156,11 +155,14 @@ public class MainActivity extends AppCompatActivity {
                 for(DataSnapshot snapshot: dataSnapshot.getChildren() ){
                     double otherLat = snapshot.child("lat").getValue(Double.class);
                     double otherLong = snapshot.child("long").getValue(Double.class);
+                    System.out.println("Distance: " + distance(latitude, longitude, otherLat, otherLong));
+                    System.out.println("Lat/Long: " + latitude + " " + longitude);
+                    System.out.println("Other Lat/Long: " + otherLat + " " + otherLong);
 
-                    Toast.makeText(getApplicationContext(), ""+ otherLat, Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(getApplicationContext(), ""+distance(latitude, longitude, otherLat, otherLong), Toast.LENGTH_SHORT).show();
                 }
 
-                String value = dataSnapshot.getValue(String.class);
                 //Toast.makeText(getApplicationContext(), value, Toast.LENGTH_SHORT).show();
             }
 
@@ -174,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public double distance(double lat1, double lat2, double lon1, double lon2){
+    public double distance(double lat1,  double lon1, double lat2, double lon2){
         double r = 6371 * 1000; // metres
         double w1 = Math.toRadians(lat1);
         double w2 =  Math.toRadians(lat2);
